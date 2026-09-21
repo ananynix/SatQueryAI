@@ -14,9 +14,11 @@ GeoAlchemy2
 asyncpg
 psycopg2-binary
 shapely
+geopandas
 google-genai
 pgvector
 pydantic-settings
 pypdf
 onnxruntime
 rasterio
+python-dotenv

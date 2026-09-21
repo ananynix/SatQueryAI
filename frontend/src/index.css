@@ -1,13 +1,30 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Share+Tech+Mono&family=Inter:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
+@theme {
+  /* Cyberpunk palette */
+  --color-void: #05070c;
+  --color-carbon: #0c1017;
+  --color-carbon-light: #131a24;
+  --color-neon-cyan: #00f3ff;
+  --color-neon-magenta: #ff0055;
+  --color-warning-gold: #ffd000;
+  --color-critical: #ff003c;
+  --color-advisory: #00f0ff;
+  --color-hud-border: rgba(0, 243, 255, 0.2);
+
+  --font-hud: 'JetBrains Mono', 'Share Tech Mono', monospace;
+  --font-sans: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: var(--font-sans);
   line-height: 1.5;
   font-weight: 400;
 
   color-scheme: dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #1a1a1a;
+  color: rgba(255, 255, 255, 0.92);
+  background-color: var(--color-void);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -15,13 +32,113 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-body {
+html, body, #root {
   margin: 0;
-  display: flex;
-  min-width: 320px;
+  width: 100%;
   min-height: 100vh;
+  background-color: var(--color-void);
 }
 
-#root {
-  width: 100%;
+/* --- HUD monospace helper --- */
+.font-hud {
+  font-family: var(--font-hud);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
 }
+
+/* --- Scroll-snap stage: hero -> console --- */
+.scroll-stage {
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+}
+
+.scroll-section {
+  height: 100vh;
+  width: 100%;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  position: relative;
+  overflow: hidden;
+}
+
+/* --- Animated HUD grid backdrop --- */
+.hud-grid-bg {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0, 243, 255, 0.09) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 243, 255, 0.09) 1px, transparent 1px);
+  background-size: 44px 44px;
+  animation: grid-pan 16s linear infinite;
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, black 40%, transparent 90%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, black 40%, transparent 90%);
+}
+
+@keyframes grid-pan {
+  0% { background-position: 0 0, 0 0; }
+  100% { background-position: 44px 44px, 44px 44px; }
+}
+
+/* --- Scanline overlay --- */
+.scanlines::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.035) 0px,
+    rgba(255, 255, 255, 0.035) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  mix-blend-mode: overlay;
+  z-index: 40;
+}
+
+/* --- Glow utilities --- */
+.glow-cyan { box-shadow: 0 0 18px rgba(0, 243, 255, 0.35), 0 0 2px rgba(0, 243, 255, 0.6) inset; }
+.glow-magenta { box-shadow: 0 0 18px rgba(255, 0, 85, 0.35), 0 0 2px rgba(255, 0, 85, 0.6) inset; }
+.text-glow-cyan { text-shadow: 0 0 12px rgba(0, 243, 255, 0.65); }
+
+.hud-panel {
+  background: rgba(12, 16, 23, 0.72);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--color-hud-border);
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 1; box-shadow: 0 0 8px currentColor; }
+  50% { opacity: 0.55; box-shadow: 0 0 18px currentColor; }
+}
+.pulse-glow { animation: pulse-glow 1.8s ease-in-out infinite; }
+
+@keyframes scan-sweep {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+
+@keyframes dash-flow {
+  to { stroke-dashoffset: -20; }
+}
+
+@keyframes flicker-in {
+  0% { opacity: 0; transform: translateY(8px); }
+  60% { opacity: 1; }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.flicker-in { animation: flicker-in 0.7s ease-out both; }
+
+@keyframes caret-blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+.caret-blink { animation: caret-blink 1s step-end infinite; }
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(0, 243, 255, 0.25); border-radius: 3px; }
